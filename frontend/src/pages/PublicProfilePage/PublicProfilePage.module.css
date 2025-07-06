@@ -50,3 +50,9 @@
   font-size: 1.2rem;
   color: var(--text-primary);
 }
+
+@media (max-width: 768px) {
+  .profileContainer h1 {
+    font-size: 1.5rem;
+  }
+}

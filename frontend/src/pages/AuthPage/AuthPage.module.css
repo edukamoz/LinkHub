@@ -39,3 +39,10 @@
   text-align: center;
   margin-bottom: 1rem;
 }
+
+@media (max-width: 768px) {
+  .authContainer {
+    width: 90%;
+    padding: 1.5rem;
+  }
+}
