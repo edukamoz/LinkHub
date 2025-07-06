@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const connectDB = require("./config/database");
+const publicRoutes = require("./routes/public.routes");
 const authRoutes = require("./routes/auth.routes");
 const linkRoutes = require("./routes/link.routes");
 
@@ -18,6 +19,7 @@ app.use(cors()); // Permite requisições de outras origens
 app.use(express.json()); // Permite que o servidor entenda JSON
 
 // Rotas
+app.use("/api/public", publicRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/links", linkRoutes);
 
