@@ -1,0 +1,59 @@
+.linkItem {
+  background-color: var(--background-surface);
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-support);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: border-color 0.2s;
+}
+
+.linkItem:hover {
+  border-color: var(--highlight-primary);
+}
+
+.linkInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.linkInfo span {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.linkInfo small {
+  color: var(--text-primary);
+  opacity: 0.7;
+}
+
+.linkActions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.actionButton {
+  background: none;
+  border: 1px solid var(--color-support);
+  color: var(--text-primary);
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.actionButton:hover {
+  background-color: var(--color-support);
+}
+
+.deleteButton:hover {
+  background-color: #ff4136;
+  border-color: #ff4136;
+}
+
+.editButton:hover {
+  background-color: var(--highlight-edit);
+  border-color: var(--highlight-edit);
+  color: var(--background-main); /* Texto escuro para contraste */
+}

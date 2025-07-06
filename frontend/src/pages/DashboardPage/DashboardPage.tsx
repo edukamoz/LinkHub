@@ -1,43 +1,30 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import api from "../../services/api";
-import { type Link } from "../../types"; // Importando nosso novo tipo
+import { type Link } from "../../types";
 
 import Button from "../../components/Button/Button";
+import LinkItem from "../../components/LinkItem/LinkItem"; // Importamos o novo componente
 import styles from "./DashboardPage.module.css";
 
 const DashboardPage = () => {
   const { logout } = useAuth();
 
-  // Estados para gerenciar os links, carregamento e erros
   const [links, setLinks] = useState<Link[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Estados para o formulário de CRIAR
   const [newLinkTitle, setNewLinkTitle] = useState("");
   const [newLinkUrl, setNewLinkUrl] = useState("");
 
-  const handleCreateLink = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newLinkTitle || !newLinkUrl) return;
+  // Estados para o modal de EDIÇÃO
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingLink, setEditingLink] = useState<Link | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editUrl, setEditUrl] = useState("");
 
-    try {
-      const response = await api.post("/links", {
-        title: newLinkTitle,
-        url: newLinkUrl,
-      });
-      // Adiciona o novo link à lista existente para atualizar a UI instantaneamente
-      setLinks((prevLinks) => [...prevLinks, response.data.data.link]);
-      // Limpa o formulário
-      setNewLinkTitle("");
-      setNewLinkUrl("");
-    } catch (err) {
-      alert("Erro ao criar o link.");
-      console.error(err);
-    }
-  };
-
-  // useEffect para buscar os links quando o componente for montado
   useEffect(() => {
     const fetchLinks = async () => {
       try {
@@ -45,14 +32,71 @@ const DashboardPage = () => {
         setLinks(response.data.data.links);
       } catch (err) {
         setError("Não foi possível carregar os links.");
-        console.error(err);
       } finally {
         setIsLoading(false);
       }
     };
-
     fetchLinks();
-  }, []); // O array vazio [] garante que isso rode apenas uma vez
+  }, []);
+
+  const handleCreateLink = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newLinkTitle || !newLinkUrl) return;
+    try {
+      const response = await api.post("/links", {
+        title: newLinkTitle,
+        url: newLinkUrl,
+      });
+      setLinks((prevLinks) => [...prevLinks, response.data.data.link]);
+      setNewLinkTitle("");
+      setNewLinkUrl("");
+    } catch (err) {
+      alert("Erro ao criar o link.");
+    }
+  };
+
+  const handleDeleteLink = async (linkId: string) => {
+    // Pede confirmação antes de uma ação destrutiva
+    if (!window.confirm("Tem certeza que deseja deletar este link?")) {
+      return;
+    }
+    try {
+      await api.delete(`/links/${linkId}`);
+      // Remove o link do estado local para atualizar a UI instantaneamente
+      setLinks((prevLinks) => prevLinks.filter((link) => link._id !== linkId));
+    } catch (err) {
+      alert("Erro ao deletar o link.");
+    }
+  };
+
+  const handleOpenEditModal = (link: Link) => {
+    setEditingLink(link);
+    setEditTitle(link.title);
+    setEditUrl(link.url);
+    setIsEditModalOpen(true);
+  };
+
+  const handleUpdateLink = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingLink) return;
+    try {
+      const response = await api.put(`/links/${editingLink._id}`, {
+        title: editTitle,
+        url: editUrl,
+      });
+      const updatedLink = response.data.data.link;
+      // Atualiza o link no estado local
+      setLinks((prevLinks) =>
+        prevLinks.map((link) =>
+          link._id === updatedLink._id ? updatedLink : link
+        )
+      );
+      setIsEditModalOpen(false);
+      setEditingLink(null);
+    } catch (err) {
+      alert("Erro ao atualizar o link.");
+    }
+  };
 
   return (
     <div className={styles.dashboardContainer}>
@@ -64,12 +108,7 @@ const DashboardPage = () => {
       </header>
 
       <div className={styles.content}>
-        <h2>Meus Links</h2>
-
-        {isLoading && <p>Carregando links...</p>}
-        {error && <p className={styles.error}>{error}</p>}
-
-        {/* Formulário de Adição de Link */}
+        <h2>Adicionar Novo Link</h2>
         <form onSubmit={handleCreateLink} className={styles.addForm}>
           <input
             type="text"
@@ -89,15 +128,21 @@ const DashboardPage = () => {
             Adicionar Link
           </Button>
         </form>
+        <h2 style={{ marginTop: "2rem" }}>Meus Links</h2>
+        {isLoading && <p>Carregando links...</p>}
+        {error && <p className={styles.error}>{error}</p>}
 
         {!isLoading && !error && (
           <div className={styles.linksList}>
             {links.length > 0 ? (
               links.map((link) => (
-                <div key={link._id} className={styles.linkItem}>
-                  <span>{link.title}</span>
-                  <small>{link.url}</small>
-                </div>
+                // Usando nosso novo componente!
+                <LinkItem
+                  key={link._id}
+                  link={link}
+                  onEdit={handleOpenEditModal}
+                  onDelete={handleDeleteLink}
+                />
               ))
             ) : (
               <p>Você ainda não tem nenhum link. Adicione um!</p>
@@ -105,6 +150,39 @@ const DashboardPage = () => {
           </div>
         )}
       </div>
+
+      {/* Modal de Edição (só aparece quando isEditModalOpen é true) */}
+      {isEditModalOpen && editingLink && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <h3>Editar Link</h3>
+            <form onSubmit={handleUpdateLink}>
+              <input
+                type="text"
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                className={styles.addInput}
+              />
+              <input
+                type="url"
+                value={editUrl}
+                onChange={(e) => setEditUrl(e.target.value)}
+                className={styles.addInput}
+              />
+              <div className={styles.modalActions}>
+                <Button
+                  type="button"
+                  onClick={() => setIsEditModalOpen(false)}
+                  className={styles.cancelButton}
+                >
+                  Cancelar
+                </Button>
+                <Button type="submit">Salvar</Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
