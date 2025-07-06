@@ -1,11 +1,12 @@
-import './App.css'
+import AuthPage from './pages/AuthPage/AuthPage';
+import './App.css';
 
 function App() {
   return (
-    <div>
-      <h1>LinkHub Frontend</h1>
-    </div>
-  )
+    <main>
+      <AuthPage />
+    </main>
+  );
 }
 
 export default App
