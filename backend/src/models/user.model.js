@@ -19,6 +19,13 @@ const userSchema = new mongoose.Schema({
   },
 }, { timestamps: true }); // Adiciona os campos createdAt e updatedAt automaticamente
 
+userSchema.methods.correctPassword = async function(
+  candidatePassword,
+  userPassword
+) {
+  return await bcrypt.compare(candidatePassword, userPassword);
+};
+
 // Hook que é executado ANTES de salvar o usuário no banco
 userSchema.pre('save', async function(next) {
   // Se a senha não foi modificada, não faz nada
