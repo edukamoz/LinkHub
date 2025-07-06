@@ -1,0 +1,31 @@
+.authContainer {
+  width: 400px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: var(--background-surface);
+  border: 1px solid var(--color-support);
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 255, 255, 0.1);
+}
+
+.authContainer h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: var(--text-primary);
+}
+
+.switchButton {
+  background: none;
+  border: none;
+  color: var(--highlight-secondary);
+  cursor: pointer;
+  text-align: center;
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.switchButton:hover {
+  text-decoration: underline;
+}
