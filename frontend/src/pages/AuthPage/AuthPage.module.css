@@ -29,3 +29,13 @@
 .switchButton:hover {
   text-decoration: underline;
 }
+
+.error {
+  color: #ff4136; /* Um vermelho neon */
+  background-color: rgba(255, 65, 54, 0.1);
+  border: 1px solid #ff4136;
+  padding: 0.75rem;
+  border-radius: 6px;
+  text-align: center;
+  margin-bottom: 1rem;
+}
