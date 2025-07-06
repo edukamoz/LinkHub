@@ -3,6 +3,7 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const connectDB = require("./config/database");
 const authRoutes = require("./routes/auth.routes");
+const linkRoutes = require("./routes/link.routes");
 
 // Carrega as variáveis de ambiente do arquivo .env
 dotenv.config({ path: "./.env" });
@@ -16,8 +17,9 @@ const app = express();
 app.use(cors()); // Permite requisições de outras origens
 app.use(express.json()); // Permite que o servidor entenda JSON
 
-// Monta o roteador de autenticação na rota /api/auth
+// Rotas
 app.use("/api/auth", authRoutes);
+app.use("/api/links", linkRoutes);
 
 const PORT = process.env.PORT || 3000;
 
