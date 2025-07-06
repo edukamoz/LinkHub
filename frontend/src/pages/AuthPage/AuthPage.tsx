@@ -7,6 +7,8 @@ import Input from '../../components/Input/Input';
 import Button from '../../components/Button/Button';
 import styles from './AuthPage.module.css';
 
+import { useAuth } from '../../context/AuthContext';
+
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   
@@ -16,6 +18,8 @@ const AuthPage = () => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const { login } = useAuth();
 
   const switchAuthModeHandler = () => {
     setIsLogin((prevState) => !prevState);
@@ -35,8 +39,7 @@ const AuthPage = () => {
 
       if (isLogin) {
         const { token } = response.data;
-        localStorage.setItem('token', token);
-        alert('Login bem-sucedido!');
+        login(token); 
       } else {
         alert('Cadastro realizado com sucesso! Agora você pode fazer o login.');
         setIsLogin(true);
