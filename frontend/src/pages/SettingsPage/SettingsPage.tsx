@@ -6,13 +6,13 @@ import api from "../../services/api";
 import Button from "../../components/Button/Button";
 import Input from "../../components/Input/Input";
 import styles from "./SettingsPage.module.css";
+import toast from "react-hot-toast";
 
 const SettingsPage = () => {
   const { user, setUser } = useAuth(); // Pegamos o usuário e a função de atualizar
 
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
-  const [message, setMessage] = useState("");
 
   useEffect(() => {
     if (user) {
@@ -23,13 +23,14 @@ const SettingsPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage("");
     try {
       const response = await api.put("/users/me", { name, username });
-      setUser(response.data.data.user); // Atualiza o usuário no contexto global
-      setMessage("Perfil atualizado com sucesso!");
+      setUser(response.data.data.user);
+      toast.success("Perfil atualizado com sucesso!");
     } catch (err: any) {
-      setMessage(err.response?.data?.message || "Erro ao atualizar perfil.");
+      const errorMessage =
+        err.response?.data?.message || "Erro ao atualizar perfil.";
+      toast.error(errorMessage);
     }
   };
 
@@ -68,7 +69,6 @@ const SettingsPage = () => {
         />
 
         <Button type="submit">Salvar Alterações</Button>
-        {message && <p className={styles.message}>{message}</p>}
       </form>
     </div>
   );

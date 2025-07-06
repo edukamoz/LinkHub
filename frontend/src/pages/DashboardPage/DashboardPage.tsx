@@ -4,7 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import api from "../../services/api";
 import { type Link } from "../../types";
 import { Link as RouterLink } from "react-router-dom";
-
+import toast from "react-hot-toast";
 import Button from "../../components/Button/Button";
 import LinkItem from "../../components/LinkItem/LinkItem"; // Importamos o novo componente
 import styles from "./DashboardPage.module.css";
@@ -51,8 +51,9 @@ const DashboardPage = () => {
       setLinks((prevLinks) => [...prevLinks, response.data.data.link]);
       setNewLinkTitle("");
       setNewLinkUrl("");
+      toast.success("Link criado com sucesso!");
     } catch (err) {
-      alert("Erro ao criar o link.");
+      toast.error("Erro ao criar o link.");
     }
   };
 
@@ -63,10 +64,10 @@ const DashboardPage = () => {
     }
     try {
       await api.delete(`/links/${linkId}`);
-      // Remove o link do estado local para atualizar a UI instantaneamente
       setLinks((prevLinks) => prevLinks.filter((link) => link._id !== linkId));
+      toast.success("Link deletado com sucesso!");
     } catch (err) {
-      alert("Erro ao deletar o link.");
+      toast.error("Erro ao deletar o link.");
     }
   };
 
@@ -94,8 +95,9 @@ const DashboardPage = () => {
       );
       setIsEditModalOpen(false);
       setEditingLink(null);
+      toast.success("Link atualizado com sucesso!");
     } catch (err) {
-      alert("Erro ao atualizar o link.");
+      toast.error("Erro ao atualizar o link.");
     }
   };
 
