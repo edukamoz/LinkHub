@@ -149,3 +149,21 @@
   background-color: var(--color-support);
   border-color: var(--color-support);
 }
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start; /* Alinha tudo à esquerda */
+    gap: 1rem;
+  }
+
+  .addForm {
+    flex-direction: column;
+    align-items: stretch; /* Faz os itens ocuparem a largura total */
+  }
+
+  /* Remove o crescimento do input para que ele se comporte bem no modo coluna */
+  .addInput {
+    flex-grow: 0;
+  }
+}
