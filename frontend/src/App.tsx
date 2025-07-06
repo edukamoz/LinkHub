@@ -3,6 +3,7 @@ import PublicProfilePage from "./pages/PublicProfilePage/PublicProfilePage";
 import AuthPage from "./pages/AuthPage/AuthPage";
 import DashboardPage from "./pages/DashboardPage/DashboardPage";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
+import SettingsPage from "./pages/SettingsPage/SettingsPage";
 import { useAuth } from "./context/AuthContext";
 
 function App() {
@@ -24,6 +25,11 @@ function App() {
 
       {/* ROTA PÚBLICA DINÂMICA */}
       <Route path="/:username" element={<PublicProfilePage />} />
+
+      <Route path="/" element={<ProtectedRoute />}>
+        <Route index element={<DashboardPage />} />
+        <Route path="settings" element={<SettingsPage />} /> {/* NOVA ROTA */}
+      </Route>
 
       {/* Qualquer outra rota não encontrada redireciona para a home */}
       <Route path="*" element={<Navigate to="/" />} />

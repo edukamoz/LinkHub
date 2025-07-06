@@ -128,3 +128,24 @@
   background-color: #c53030;
   filter: brightness(1);
 }
+
+.headerActions {
+  display: flex;
+  align-items: center; /* Alinha os itens verticalmente */
+  gap: 1rem; /* Cria um espaço entre o link e o botão */
+}
+
+.settingsLink {
+  color: var(--text-primary);
+  text-decoration: none;
+  font-weight: bold;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid transparent; /* Borda transparente para manter o tamanho */
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.settingsLink:hover {
+  background-color: var(--color-support);
+  border-color: var(--color-support);
+}
