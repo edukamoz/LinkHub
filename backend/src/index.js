@@ -5,6 +5,7 @@ const connectDB = require("./config/database");
 const publicRoutes = require("./routes/public.routes");
 const authRoutes = require("./routes/auth.routes");
 const linkRoutes = require("./routes/link.routes");
+const userRoutes = require("./routes/user.routes");
 
 // Carrega as variáveis de ambiente do arquivo .env
 dotenv.config({ path: "./.env" });
@@ -19,6 +20,7 @@ app.use(cors()); // Permite requisições de outras origens
 app.use(express.json()); // Permite que o servidor entenda JSON
 
 // Rotas
+app.use("/api/users", userRoutes);
 app.use("/api/public", publicRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/links", linkRoutes);

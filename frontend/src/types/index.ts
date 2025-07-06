@@ -6,3 +6,10 @@ export interface Link {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface User {
+  _id: string;
+  name: string;
+  email: string;
+  username?: string;
+}

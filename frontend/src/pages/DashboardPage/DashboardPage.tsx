@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import api from "../../services/api";
 import { type Link } from "../../types";
+import { Link as RouterLink } from "react-router-dom";
 
 import Button from "../../components/Button/Button";
 import LinkItem from "../../components/LinkItem/LinkItem"; // Importamos o novo componente
@@ -102,9 +103,14 @@ const DashboardPage = () => {
     <div className={styles.dashboardContainer}>
       <header className={styles.header}>
         <h1>Meu Dashboard</h1>
-        <Button onClick={logout} style={{ width: "auto" }}>
-          Sair
-        </Button>
+        <div className={styles.headerActions}>
+          <RouterLink to="/settings" className={styles.settingsLink}>
+            Configurações
+          </RouterLink>
+          <Button onClick={logout} style={{ width: "auto" }}>
+            Sair
+          </Button>
+        </div>
       </header>
 
       <div className={styles.content}>

@@ -1,0 +1,44 @@
+.settingsContainer {
+  width: 100%;
+  max-width: 600px;
+}
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+.form label {
+  font-weight: bold;
+}
+.message {
+  margin-top: 1rem;
+  font-weight: bold;
+  color: var(--highlight-primary);
+}
+
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  margin-bottom: 2rem;
+  padding: 10px 15px;
+
+  background-color: var(--highlight-primary);
+  color: var(--background-main);
+
+  text-decoration: none;
+  font-weight: bold;
+  border-radius: 6px;
+  transition: filter 0.2s;
+}
+
+.backButton svg {
+  width: 20px;
+  height: 20px;
+}
+
+.backButton:hover {
+  filter: brightness(0.9);
+}
