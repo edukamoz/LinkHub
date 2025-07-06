@@ -1,0 +1,39 @@
+<svg width="250" height="100" viewBox="0 0 250 100" xmlns="http://www.w3.org/2000/svg">
+    <!-- Definições de estilo e filtros para o efeito neon -->
+    <defs>
+        <style>
+            .logo-font { font-family: 'Orbitron', sans-serif; font-weight: 700; }
+        </style>
+        <filter id="neon-cyan" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur" />
+            <feFlood flood-color="#00FFFF" result="color" />
+            <feComposite in="color" in2="blur" operator="in" result="glow" />
+            <feMerge>
+                <feMergeNode in="glow" />
+                <feMergeNode in="SourceGraphic" />
+            </feMerge>
+        </filter>
+        <filter id="neon-magenta" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur" />
+            <feFlood flood-color="#FF00FF" result="color" />
+            <feComposite in="color" in2="blur" operator="in" result="glow" />
+            <feMerge>
+                <feMergeNode in="glow" />
+                <feMergeNode in="SourceGraphic" />
+            </feMerge>
+        </filter>
+    </defs>
+
+    <!-- Elementos do Logo -->
+    <g>
+        <!-- Ponto de brilho na conexão -->
+        <circle cx="125" cy="50" r="5" fill="#FF00FF" style="filter: url(#neon-magenta);" />
+        <!-- Texto do logo -->
+        <text x="125" y="60" font-size="40" text-anchor="middle" class="logo-font">
+            <tspan fill="#E0E0E0">Lin</tspan>
+            <tspan fill="#E0E0E0" dx="-5">k</tspan>
+            <tspan fill="#00FFFF" style="filter: url(#neon-cyan);" dx="-5">H</tspan>
+            <tspan fill="#00FFFF" style="filter: url(#neon-cyan);">ub</tspan>
+        </text>
+    </g>
+</svg>

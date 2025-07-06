@@ -1,0 +1,37 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <!-- Definições de estilo e filtros para o efeito neon -->
+    <defs>
+        <style>
+            .logo-font { font-family: 'Orbitron', sans-serif; font-weight: 700; }
+        </style>
+        <filter id="neon-cyan-icon" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur" />
+            <feFlood flood-color="#00FFFF" result="color" />
+            <feComposite in="color" in2="blur" operator="in" result="glow" />
+            <feMerge>
+                <feMergeNode in="glow" />
+                <feMergeNode in="SourceGraphic" />
+            </feMerge>
+        </filter>
+        <filter id="neon-magenta-icon" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur" />
+            <feFlood flood-color="#FF00FF" result="color" />
+            <feComposite in="color" in2="blur" operator="in" result="glow" />
+            <feMerge>
+                <feMergeNode in="glow" />
+                <feMergeNode in="SourceGraphic" />
+            </feMerge>
+        </filter>
+    </defs>
+
+    <!-- Elementos do Ícone -->
+    <g>
+        <!-- Ponto de brilho na sobreposição -->
+        <circle cx="50" cy="50" r="4" fill="#FF00FF" style="filter: url(#neon-magenta-icon);" />
+        <!-- Monograma LH -->
+        <text x="50" y="68" font-size="60" text-anchor="middle" class="logo-font">
+            <tspan fill="#E0E0E0">L</tspan>
+            <tspan fill="#00FFFF" style="filter: url(#neon-cyan-icon);" dx="-20">H</tspan>
+        </text>
+    </g>
+</svg>
