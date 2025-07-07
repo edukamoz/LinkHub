@@ -167,3 +167,18 @@
     flex-grow: 0;
   }
 }
+
+.error {
+  color: #ff4136;
+  font-size: 0.875rem;
+  margin-top: -0.75rem;
+  margin-bottom: 1rem;
+}
+.formControl {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+.formControl label {
+  display: block;
+  margin-bottom: 0.5rem;
+}

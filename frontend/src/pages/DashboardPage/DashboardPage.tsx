@@ -1,13 +1,24 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
+import { useForm, type SubmitHandler } from "react-hook-form";
 import api from "../../services/api";
 import { type Link } from "../../types";
 import { Link as RouterLink } from "react-router-dom";
 import toast from "react-hot-toast";
 import Button from "../../components/Button/Button";
-import LinkItem from "../../components/LinkItem/LinkItem"; // Importamos o novo componente
+import LinkItem from "../../components/LinkItem/LinkItem";
 import styles from "./DashboardPage.module.css";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import Input from "../../components/Input/Input";
+
+const linkSchema = z.object({
+  title: z.string().min(1, { message: "O título é obrigatório." }),
+  url: z.string().url({ message: "Por favor, insira uma URL válida." }),
+});
+
+type LinkFormData = z.infer<typeof linkSchema>;
 
 const DashboardPage = () => {
   const { logout } = useAuth();
@@ -16,15 +27,27 @@ const DashboardPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Estados para o formulário de CRIAR
-  const [newLinkTitle, setNewLinkTitle] = useState("");
-  const [newLinkUrl, setNewLinkUrl] = useState("");
-
   // Estados para o modal de EDIÇÃO
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingLink, setEditingLink] = useState<Link | null>(null);
-  const [editTitle, setEditTitle] = useState("");
-  const [editUrl, setEditUrl] = useState("");
+
+  const {
+    register: registerCreate,
+    handleSubmit: handleSubmitCreate,
+    formState: { errors: errorsCreate },
+    reset: resetCreateForm,
+  } = useForm<LinkFormData>({
+    resolver: zodResolver(linkSchema),
+  });
+
+  const {
+    register: registerEdit,
+    handleSubmit: handleSubmitEdit,
+    formState: { errors: errorsEdit },
+    reset: resetEditForm,
+  } = useForm<LinkFormData>({
+    resolver: zodResolver(linkSchema),
+  });
 
   useEffect(() => {
     const fetchLinks = async () => {
@@ -40,20 +63,31 @@ const DashboardPage = () => {
     fetchLinks();
   }, []);
 
-  const handleCreateLink = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newLinkTitle || !newLinkUrl) return;
+  const onCreateSubmit: SubmitHandler<LinkFormData> = async (data) => {
     try {
-      const response = await api.post("/links", {
-        title: newLinkTitle,
-        url: newLinkUrl,
-      });
+      const response = await api.post("/links", data);
       setLinks((prevLinks) => [...prevLinks, response.data.data.link]);
-      setNewLinkTitle("");
-      setNewLinkUrl("");
+      resetCreateForm(); // Limpa o formulário de criação
       toast.success("Link criado com sucesso!");
     } catch (err) {
       toast.error("Erro ao criar o link.");
+    }
+  };
+
+  const onUpdateSubmit: SubmitHandler<LinkFormData> = async (data) => {
+    if (!editingLink) return;
+    try {
+      const response = await api.put(`/links/${editingLink._id}`, data);
+      const updatedLink = response.data.data.link;
+      setLinks((prevLinks) =>
+        prevLinks.map((link) =>
+          link._id === updatedLink._id ? updatedLink : link
+        )
+      );
+      setIsEditModalOpen(false);
+      toast.success("Link atualizado com sucesso!");
+    } catch (err) {
+      toast.error("Erro ao atualizar o link.");
     }
   };
 
@@ -73,32 +107,8 @@ const DashboardPage = () => {
 
   const handleOpenEditModal = (link: Link) => {
     setEditingLink(link);
-    setEditTitle(link.title);
-    setEditUrl(link.url);
+    resetEditForm({ title: link.title, url: link.url });
     setIsEditModalOpen(true);
-  };
-
-  const handleUpdateLink = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingLink) return;
-    try {
-      const response = await api.put(`/links/${editingLink._id}`, {
-        title: editTitle,
-        url: editUrl,
-      });
-      const updatedLink = response.data.data.link;
-      // Atualiza o link no estado local
-      setLinks((prevLinks) =>
-        prevLinks.map((link) =>
-          link._id === updatedLink._id ? updatedLink : link
-        )
-      );
-      setIsEditModalOpen(false);
-      setEditingLink(null);
-      toast.success("Link atualizado com sucesso!");
-    } catch (err) {
-      toast.error("Erro ao atualizar o link.");
-    }
   };
 
   return (
@@ -117,25 +127,32 @@ const DashboardPage = () => {
 
       <div className={styles.content}>
         <h2>Adicionar Novo Link</h2>
-        <form onSubmit={handleCreateLink} className={styles.addForm}>
-          <input
+        <form
+          onSubmit={handleSubmitCreate(onCreateSubmit)}
+          className={styles.addForm}
+        >
+          <Input
             type="text"
             placeholder="Título do Link"
-            value={newLinkTitle}
-            onChange={(e) => setNewLinkTitle(e.target.value)}
-            className={styles.addInput}
+            {...registerCreate("title")}
           />
-          <input
+          <Input
             type="url"
             placeholder="https://exemplo.com"
-            value={newLinkUrl}
-            onChange={(e) => setNewLinkUrl(e.target.value)}
-            className={styles.addInput}
+            {...registerCreate("url")}
           />
           <Button type="submit" style={{ width: "auto", padding: "10px 20px" }}>
             Adicionar Link
           </Button>
         </form>
+
+        {errorsCreate.title && (
+          <p className={styles.error}>{errorsCreate.title.message}</p>
+        )}
+        {errorsCreate.url && (
+          <p className={styles.error}>{errorsCreate.url.message}</p>
+        )}
+
         <h2 style={{ marginTop: "2rem" }}>Meus Links</h2>
         {isLoading && <p>Carregando links...</p>}
         {error && <p className={styles.error}>{error}</p>}
@@ -164,19 +181,21 @@ const DashboardPage = () => {
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
             <h3>Editar Link</h3>
-            <form onSubmit={handleUpdateLink}>
-              <input
-                type="text"
-                value={editTitle}
-                onChange={(e) => setEditTitle(e.target.value)}
-                className={styles.addInput}
-              />
-              <input
-                type="url"
-                value={editUrl}
-                onChange={(e) => setEditUrl(e.target.value)}
-                className={styles.addInput}
-              />
+            <form onSubmit={handleSubmitEdit(onUpdateSubmit)}>
+              <div className={styles.formControl}>
+                <label>Título</label>
+                <Input type="text" {...registerEdit("title")} />
+                {errorsEdit.title && (
+                  <p className={styles.error}>{errorsEdit.title.message}</p>
+                )}
+              </div>
+              <div className={styles.formControl}>
+                <label>URL</label>
+                <Input type="url" {...registerEdit("url")} />
+                {errorsEdit.url && (
+                  <p className={styles.error}>{errorsEdit.url.message}</p>
+                )}
+              </div>
               <div className={styles.modalActions}>
                 <Button
                   type="button"

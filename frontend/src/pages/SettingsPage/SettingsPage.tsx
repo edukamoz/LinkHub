@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import api from "../../services/api";
@@ -7,24 +7,50 @@ import Button from "../../components/Button/Button";
 import Input from "../../components/Input/Input";
 import styles from "./SettingsPage.module.css";
 import toast from "react-hot-toast";
+import { z } from "zod";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const profileSchema = z.object({
+  name: z
+    .string()
+    .min(3, { message: "O nome precisa ter no mínimo 3 caracteres." }),
+  username: z
+    .string()
+    .refine((val) => val.length === 0 || val.length >= 3, {
+      message: "O nome de usuário precisa ter no mínimo 3 caracteres.",
+    })
+    .refine((val) => val.length === 0 || /^[a-z0-9-]+$/.test(val), {
+      message: "Use apenas letras minúsculas, números e hifens.",
+    }),
+});
+
+type ProfileFormData = z.infer<typeof profileSchema>;
 
 const SettingsPage = () => {
   const { user, setUser } = useAuth(); // Pegamos o usuário e a função de atualizar
 
-  const [name, setName] = useState("");
-  const [username, setUsername] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<ProfileFormData>({
+    resolver: zodResolver(profileSchema),
+  });
 
   useEffect(() => {
     if (user) {
-      setName(user.name);
-      setUsername(user.username || "");
+      reset({
+        name: user.name,
+        username: user.username || "",
+      });
     }
-  }, [user]);
+  }, [user, reset]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit: SubmitHandler<ProfileFormData> = async (data) => {
     try {
-      const response = await api.put("/users/me", { name, username });
+      const response = await api.put("/users/me", data);
       setUser(response.data.data.user);
       toast.success("Perfil atualizado com sucesso!");
     } catch (err: any) {
@@ -53,22 +79,24 @@ const SettingsPage = () => {
         Voltar para o Dashboard
       </Link>
       <h1>Configurações do Perfil</h1>
-      <form onSubmit={handleSubmit} className={styles.form}>
-        <label>Nome</label>
-        <Input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
+      <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
+        <div className={styles.formControl}>
+          <label>Nome</label>
+          <Input type="text" {...register("name")} />
+          {errors.name && <p className={styles.error}>{errors.name.message}</p>}
+        </div>
 
-        <label>Nome de Usuário (URL Pública)</label>
-        <Input
-          type="text"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
+        <div className={styles.formControl}>
+          <label>Nome de Usuário (URL Pública)</label>
+          <Input type="text" {...register("username")} />
+          {errors.username && (
+            <p className={styles.error}>{errors.username.message}</p>
+          )}
+        </div>
 
-        <Button type="submit">Salvar Alterações</Button>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Salvando..." : "Salvar Alterações"}
+        </Button>
       </form>
     </div>
   );
