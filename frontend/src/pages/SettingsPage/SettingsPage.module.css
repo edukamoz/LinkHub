@@ -42,3 +42,13 @@
 .backButton:hover {
   filter: brightness(0.9);
 }
+
+.formControl {
+  width: 100%;
+  margin-bottom: 1.25rem;
+}
+.error {
+  color: #ff4136;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}

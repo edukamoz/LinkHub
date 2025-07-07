@@ -1,47 +1,63 @@
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import toast from "react-hot-toast";
-import { useState, type FormEvent } from "react";
-// 1. Importamos os tipos e a função de verificação do Axios
 import api from "../../services/api";
+import { useAuth } from "../../context/AuthContext";
 import { isAxiosError } from "axios";
 
 import Input from "../../components/Input/Input";
 import Button from "../../components/Button/Button";
 import styles from "./AuthPage.module.css";
 
-import { useAuth } from "../../context/AuthContext";
+const registerSchema = z.object({
+  name: z
+    .string()
+    .min(3, { message: "O nome precisa ter no mínimo 3 caracteres." }),
+  email: z.string().email({ message: "Por favor, insira um email válido." }),
+  password: z
+    .string()
+    .min(8, { message: "A senha precisa ter no mínimo 8 caracteres." }),
+});
+
+const loginSchema = z.object({
+  email: z.string().email({ message: "Por favor, insira um email válido." }),
+  password: z.string().min(1, { message: "A senha é obrigatória." }),
+});
+
+// Extrai os tipos TypeScript a partir dos schemas
+type RegisterFormData = z.infer<typeof registerSchema>;
+type LoginFormData = z.infer<typeof loginSchema>;
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
-
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
   const { login } = useAuth();
+
+  const currentSchema = isLogin ? loginSchema : registerSchema;
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterFormData | LoginFormData>({
+    resolver: zodResolver(currentSchema),
+  });
 
   const switchAuthModeHandler = () => {
     setIsLogin((prevState) => !prevState);
-    setError(null);
   };
 
-  const handleSubmit = async (event: FormEvent) => {
-    event.preventDefault();
-    setIsLoading(true);
-    setError(null);
-
+  const onFormSubmit = async (data: RegisterFormData | LoginFormData) => {
     const endpoint = isLogin ? "/auth/login" : "/auth/register";
-    const payload = isLogin ? { email, password } : { name, email, password };
 
     try {
-      const response = await api.post(endpoint, payload);
+      const response = await api.post(endpoint, data);
 
       if (isLogin) {
         const { token } = response.data;
         login(token);
-        // A navegação será automática, não precisamos de notificação aqui.
+        toast.success("Login bem-sucedido!");
       } else {
         toast.success("Cadastro realizado com sucesso! Faça o login.");
         setIsLogin(true);
@@ -49,59 +65,57 @@ const AuthPage = () => {
     } catch (err) {
       if (isAxiosError(err)) {
         const message = err.response?.data?.message || "Ocorreu um erro.";
-        setError(message);
         toast.error(message);
       } else {
-        // Se for um erro genérico (ex: de rede), mostramos uma mensagem padrão.
-        setError("Ocorreu um erro inesperado. Verifique sua conexão.");
-        console.error("Erro não esperado:", err);
+        toast.error("Ocorreu um erro inesperado.");
       }
-    } finally {
-      // O bloco finally é executado sempre, com sucesso ou erro.
-      setIsLoading(false);
     }
   };
+
+  console.log("Erros do formulário:", errors);
 
   return (
     <div className={styles.authContainer}>
       <h2>{isLogin ? "Login" : "Criar Conta"}</h2>
-      <form onSubmit={handleSubmit}>
+
+      <form onSubmit={handleSubmit(onFormSubmit)}>
         {!isLogin && (
-          <Input
-            type="text"
-            placeholder="Seu Nome"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
+          <div className={styles.formControl}>
+            <Input type="text" placeholder="Seu Nome" {...register("name")} />
+            {"name" in errors && errors.name && (
+              <p className={styles.error}>{errors.name.message}</p>
+            )}
+          </div>
         )}
 
-        <Input
-          type="email"
-          placeholder="Seu E-mail"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <Input
-          type="password"
-          placeholder="Sua Senha"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+        <div className={styles.formControl}>
+          <Input type="email" placeholder="Seu E-mail" {...register("email")} />
+          {errors.email && (
+            <p className={styles.error}>{errors.email.message}</p>
+          )}
+        </div>
 
-        {error && <p className={styles.error}>{error}</p>}
+        <div className={styles.formControl}>
+          <Input
+            type="password"
+            placeholder="Sua Senha"
+            {...register("password")}
+          />
+          {errors.password && (
+            <p className={styles.error}>{errors.password.message}</p>
+          )}
+        </div>
 
-        <Button type="submit" disabled={isLoading}>
-          {isLoading ? "Carregando..." : isLogin ? "Entrar" : "Registrar"}
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Carregando..." : isLogin ? "Entrar" : "Registrar"}
         </Button>
       </form>
+
       <button
         type="button"
         className={styles.switchButton}
         onClick={switchAuthModeHandler}
-        disabled={isLoading}
+        disabled={isSubmitting}
       >
         {isLogin
           ? "Não tem uma conta? Crie uma agora!"
