@@ -1,4 +1,10 @@
+<div align="center">
+  
+  <img src="./frontend/public/logo.svg">
+
 # LinkHub - Agregador de Links Pessoal 🔗
+
+</div>
 
 <div align="center">
   <em>Um agregador de links de código aberto, construído com as tecnologias mais modernas, permitindo que usuários criem uma página pública e personalizada para todos os seus links importantes.</em>
@@ -7,7 +13,7 @@
 <br/>
 
 <div align="center">
-  <img src="./docs/images/linkhub-demo.gif" alt="Demonstração do LinkHub" width="800px">
+  <img src="./docs/images/linkhub.gif" alt="Demonstração do LinkHub" width="800px">
 </div>
 
 <br/>
